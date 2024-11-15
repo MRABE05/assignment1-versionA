@@ -15,9 +15,11 @@ violators will be reported and appropriate action will be taken.
 
 import sys
 
+from datetime import datetime
+
 def day_of_week(year: int, month: int, date: int) -> str:
     "Based on the algorithm by Tomohiko Sakamoto"
-    days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] 
+    days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
     offset = {1: 0, 2: 3, 3: 2, 4: 5, 5: 0, 6: 3, 7: 5, 8: 1, 9: 4, 10: 6, 11: 2, 12: 4}
     if month < 3:
         year -= 1
@@ -67,17 +69,31 @@ def after(date: str) -> str:
     next_date = f"{year}-{to_month:02}-{to_day:02}"
     return next_date
 
-def usage():
-    "Print a usage message to the user"
-    ...
-
 def valid_date(date: str) -> bool:
     "Check validity of date and return True if valid"
-    ...
+    try:
+        # Try transfer the date to check its validity
+        datetime.strptime(date, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
 
 def day_count(start_date: str, stop_date: str) -> int:
     "Loops through range of dates, and returns number of weekend days"
-    ...
+    if not (valid_date(start_date) and valid_date(stop_date)):
+        raise ValueError("Invalid date format. Dates must be in YYYY-MM-DD format.")
 
-if __name__ == "__main__":
-    ...
+    weekend_count = 0
+    current_date = start_date
+
+    while current_date <= stop_date:
+        year, month, day = map(int, current_date.split('-'))
+        day_name = day_of_week(year, month, day)
+        if day_name in ['sat', 'sun']:
+            weekend_count += 1
+        current_date = after(current_date)
+
+    return weekend_count
+
+# Output
+print(day_count("2024-11-01", "2024-11-14")) 
