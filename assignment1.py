@@ -14,11 +14,10 @@ violators will be reported and appropriate action will be taken.
 '''
 
 import sys
-
 from datetime import datetime
 
 def day_of_week(year: int, month: int, date: int) -> str:
-    "Based on the algorithm by Tomohiko Sakamoto"
+    """***Return the day of the week as a string, based on Tomohiko Sakamoto's algorithm***"""
     days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
     offset = {1: 0, 2: 3, 3: 2, 4: 5, 5: 0, 6: 3, 7: 5, 8: 1, 9: 4, 10: 6, 11: 2, 12: 4}
     if month < 3:
@@ -27,11 +26,11 @@ def day_of_week(year: int, month: int, date: int) -> str:
     return days[num]
 
 def leap_year(year: int) -> bool:
-    "Return True if the year is a leap year"
+    """***Return True if the year is a leap year, False otherwise***"""
     return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
 
 def mon_max(month: int, year: int) -> int:
-    "Returns the maximum number of days for a given month, accounting for leap years in February"
+    """***Return the maximum number of days in the given month, accounting for leap years***"""
     if month in {4, 6, 9, 11}:  # April, June, September, November
         return 30
     elif month == 2:  # February
@@ -40,21 +39,15 @@ def mon_max(month: int, year: int) -> int:
         return 31
 
 def after(date: str) -> str:
-    '''
-    after() -> date for next day in YYYY-MM-DD string format
-
-    Return the date for the next day of the given date in YYYY-MM-DD format.
-    This function takes care of the number of days in February for leap year.
-    This function has been tested to work for year after 1582.
-    '''
+    """***Return the date for the next day of the given date in YYYY-MM-DD format***"""
     str_year, str_month, str_day = date.split('-')
     year = int(str_year)
     month = int(str_month)
     day = int(str_day)
-    tmp_day = day + 1  # next day
+    tmp_day = day + 1
 
     if tmp_day > mon_max(month, year):
-        to_day = 1  # reset to 1 if tmp_day exceeds this month's max
+        to_day = 1
         tmp_month = month + 1
     else:
         to_day = tmp_day
@@ -70,19 +63,15 @@ def after(date: str) -> str:
     return next_date
 
 def valid_date(date: str) -> bool:
-    "Check validity of date and return True if valid"
+    """***Check if a date string is valid and in YYYY-MM-DD format***"""
     try:
-        # Try transfer the date to check its validity
         datetime.strptime(date, "%Y-%m-%d")
         return True
     except ValueError:
         return False
 
 def day_count(start_date: str, stop_date: str) -> int:
-    "Loops through range of dates, and returns number of weekend days"
-    if not (valid_date(start_date) and valid_date(stop_date)):
-        raise ValueError("Invalid date format. Dates must be in YYYY-MM-DD format.")
-
+    """***Return the number of weekend days between start_date and stop_date, inclusive***"""
     weekend_count = 0
     current_date = start_date
 
@@ -95,5 +84,33 @@ def day_count(start_date: str, stop_date: str) -> int:
 
     return weekend_count
 
-# Output
-print(day_count("2024-11-01", "2024-11-14")) 
+def usage():
+    """Print a helpful usage message and exit the program."""
+    print("Usage: python script.py <start_date> <end_date>")
+    print("Both dates must be in YYYY-MM-DD format.")
+    print("The earlier date will automatically be used as the start date.")
+    sys.exit(1)
+
+def ensure_date_order(start_date: str, stop_date: str) -> tuple:
+    """Ensure start_date is earlier than stop_date; if not, swap them."""
+    if start_date > stop_date:
+        return stop_date, start_date
+    return start_date, stop_date
+
+if __name__ == "__main__":
+    # Ensure the correct number of arguments are provided
+    if len(sys.argv) != 3:
+        usage()
+
+    start_date, stop_date = sys.argv[1], sys.argv[2]
+
+    # Validate both dates
+    if not (valid_date(start_date) and valid_date(stop_date)):
+        usage()
+
+    # Ensure the start date is earlier than the end date
+    start_date, stop_date = ensure_date_order(start_date, stop_date)
+
+    # It will calculate and print the number of weekend days within the range
+    weekends = day_count(start_date, stop_date)
+    print(f"The period between {start_date} and {stop_date} includes {weekends}")
